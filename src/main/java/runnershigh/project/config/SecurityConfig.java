@@ -41,7 +41,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/api/v1/join", "/api/v1/enquiry/idCheck", "/api/v1/login", "/api/v1/logout","/api/v1/auth/sms", "/api/v1/auth/smsCheck", "/api/v1/refresh").permitAll()
+                        .requestMatchers("/api/v1/enquiry/**", "/api/v1/join", "/api/v1/enquiry/idCheck", "/api/v1/login", "/api/v1/logout","/api/v1/auth/sms", "/api/v1/auth/smsCheck", "/api/v1/refresh").permitAll()
                         .anyRequest().authenticated());
 
         http

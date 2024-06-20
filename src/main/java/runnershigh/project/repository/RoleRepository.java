@@ -1,7 +1,7 @@
 package runnershigh.project.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import runnershigh.project.domain.Role;
+import runnershigh.project.domain.member.Role;
 
 import java.util.Optional;
 

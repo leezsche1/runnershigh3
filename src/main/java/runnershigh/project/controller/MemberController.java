@@ -13,13 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import runnershigh.project.domain.Agree;
-import runnershigh.project.domain.Member;
-import runnershigh.project.domain.MemberRole;
-import runnershigh.project.dto.*;
+import org.springframework.web.bind.annotation.*;
+import runnershigh.project.domain.member.Agree;
+import runnershigh.project.domain.member.Member;
+import runnershigh.project.domain.member.MemberRole;
+import runnershigh.project.dto.member.*;
 import runnershigh.project.handler.CommonResDTO;
 import runnershigh.project.handler.CustomExceptionCode;
 import runnershigh.project.handler.CustomValidationException;
@@ -43,8 +41,14 @@ public class MemberController {
     private final JwtTokenizer jwtTokenizer;
 
 
-    private final static Duration contactDuration = Duration.ofMinutes(3);
+    private final static Duration contactDuration = Duration.ofMinutes(3);     //테스트를 위해 30분으로 해놓자.
     private final static Duration refreshDuration = Duration.ofDays(7);
+
+    @GetMapping("/")
+    public String testingHi() {
+        return "hi";
+    }
+
 
     @PostMapping("/api/v1/auth/sms")
     public ResponseEntity sendingSms(@RequestBody @Valid PhoneNumberDTO phoneNumberDTO, BindingResult result) {
@@ -224,5 +228,58 @@ public class MemberController {
 
 
     }
+
+    @PostMapping("/api/v1/enquiry/findingId")
+    public ResponseEntity findingId(@RequestBody FindingIdDTO findingIdDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new CustomValidationException("빈 값이 존재합니다.", CustomExceptionCode.NULL_FAIL);
+        }
+
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        String savedAuthNumber = (String) valueOperations.get(findingIdDTO.getPhoneNumber());
+
+        if (!findingIdDTO.getAuthNumber().equals(savedAuthNumber)) {
+            throw new CustomValidationException("인증번호 불일치", CustomExceptionCode.AUTH_NUMBER_FAIL);
+        }
+
+        Member findingmember = memberService.findByName(findingIdDTO);
+        CommonResDTO<String> commonResDTO = new CommonResDTO<>("1", "ID찾기 성공", findingmember.getEmail());
+        return ResponseEntity.status(HttpStatus.OK).body(commonResDTO);
+    }
+
+    @PostMapping("/api/v1/enquiry/findingPwd")
+    public ResponseEntity findingPwd(@RequestBody FindingPwdDTO findingPwdDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new CustomValidationException("빈 값이 존재합니다.", CustomExceptionCode.NULL_FAIL);
+        }
+
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        String savedAuthNumber = (String) valueOperations.get(findingPwdDTO.getPhoneNumber());
+
+        if (!findingPwdDTO.getAuthNumber().equals(savedAuthNumber)) {
+            throw new CustomValidationException("인증번호 불일치", CustomExceptionCode.AUTH_NUMBER_FAIL);
+        }
+
+        Member findingMember = memberService.findByEmailAndName(findingPwdDTO);
+
+        CommonResDTO<String> commonResDTO = new CommonResDTO<>("1", "비밀번호를 변경해주시면 됩니다.", findingPwdDTO.getEmail());
+        return ResponseEntity.status(HttpStatus.OK).body(commonResDTO);
+
+    }
+
+    @PatchMapping("/api/v1/enquiry/findingPwd")
+    public ResponseEntity changingPwd(@RequestBody ChangingPwdDTO changingPwdDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new CustomValidationException("빈 값이 존재합니다.", CustomExceptionCode.NULL_FAIL);
+        }
+
+        memberService.changingPWd(changingPwdDTO);
+
+        CommonResDTO<Object> commonResDTO = new CommonResDTO<>("1", "비밀번호 변경 성공", null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(commonResDTO);
+    }
+
+
 
 }

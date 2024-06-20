@@ -1,8 +1,10 @@
-package runnershigh.project.domain;
+package runnershigh.project.domain.member;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import runnershigh.project.domain.RegEntity;
+import runnershigh.project.domain.running.RunningRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +12,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class Member extends RegEntity{
+public class Member extends RegEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +42,9 @@ public class Member extends RegEntity{
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     public List<MemberRole> memberRoles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    public List<RunningRecord> runningRecords = new ArrayList<>();
 
     public void addMemberRole(MemberRole memberRole) {
         memberRoles.add(memberRole);

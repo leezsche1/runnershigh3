@@ -1,4 +1,4 @@
-package runnershigh.project.domain;
+package runnershigh.project.domain.member;
 
 import jakarta.persistence.Embeddable;
 import lombok.Getter;

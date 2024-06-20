@@ -1,4 +1,4 @@
-package runnershigh.project.dto;
+package runnershigh.project.dto.member;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
